@@ -1,6 +1,6 @@
 import { Component, OnInit,Input } from '@angular/core';
 import {Acmer} from "../../model/Acmer";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 
 @Component({
   selector: 'app-acmer-details',
@@ -10,7 +10,11 @@ import {ActivatedRoute} from "@angular/router";
 export class AcmerDetailsComponent implements OnInit {
   @Input() acmer: Acmer;
   handle:string;
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute,private router: Router) {
+    if(localStorage.getItem('handle') == null){
+      this.router.navigate(['login']);
+    }
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {

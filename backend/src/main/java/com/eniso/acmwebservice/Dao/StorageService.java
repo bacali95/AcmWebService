@@ -42,9 +42,6 @@ public class StorageService {
         }
     }
 
-
-
-
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
     }

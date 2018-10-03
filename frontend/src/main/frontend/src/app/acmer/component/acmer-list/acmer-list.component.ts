@@ -64,9 +64,10 @@ export class AcmerListComponent implements OnInit  {
   ngOnInit() {
     console.log(this.loggedInAcmer);
     this.acmerService.getAllAcmers().subscribe(data => {
-      console.log(data);
       this.acmers = data;
-    }, error => console.log(error));
+    }, error =>{
+      this.router.navigate(['login']);
+    });
     this.queue = this.acmerService.queue;
     this.acmerService.onCompleteItem = this.completeItem;
   }

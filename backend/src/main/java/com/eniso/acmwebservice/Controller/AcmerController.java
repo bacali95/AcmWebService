@@ -11,17 +11,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/acmers")
-@CrossOrigin(origins = "*",allowedHeaders={"x-auth-token", "x-requested-with", "x-xsrf-token"})
+@CrossOrigin(origins = "*")
 public class AcmerController {
 
     public static final Logger logger = LoggerFactory.getLogger(AcmerController.class);
@@ -31,14 +33,18 @@ public class AcmerController {
     private AcmerService acmerService;
 
     @GetMapping(value = "")
-    public ResponseEntity<Collection<Acmer>> getAllAcmer() {
+    public ResponseEntity<Collection<Acmer>> getAllAcmer(HttpServletRequest request) {
+        String jwt = request.getHeader("auth-token");
+        if (jwt == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         List<Acmer> acmerList = new ArrayList<>(acmerService.findAllAcmers());
         System.out.println(acmerList);
         return new ResponseEntity<>(acmerList, HttpStatus.OK);
     }
 
     @PostMapping("/createAll")
-    public ResponseEntity<Void> createAll(MultipartHttpServletRequest request) {
+    public ResponseEntity<Void> createAll(MultipartHttpServletRequest request,HttpServletRequest httpRequest) {
         try {
             // v2c
             Iterator<String> itr = request.getFileNames();
@@ -63,7 +69,15 @@ public class AcmerController {
     }
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Void> createAcmer(@RequestBody String acmerData) {
+    public ResponseEntity<Void> createAcmer(@RequestBody String acmerData, HttpServletRequest request) {
+        String jwt = request.getHeader("auth-token");
+        String privilege = request.getHeader("privilege");
+        if (jwt == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if(privilege!="ADMIN"){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         boolean bool = acmerService.createAcmer(acmerData);
         if (!bool) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -72,20 +86,43 @@ public class AcmerController {
     }
 
     @DeleteMapping("/{handle:.+}")
-    public ResponseEntity<Collection<Acmer>> deleteAcmer(@PathVariable("handle") String handle) {
-        System.out.println(handle);
+    public ResponseEntity<Collection<Acmer>> deleteAcmer(@PathVariable("handle") String handle, HttpServletRequest request) {
+        String jwt = request.getHeader("auth-token");
+        String privilege = request.getHeader("privilege");
+        if (jwt == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if(privilege!="ADMIN"){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         List<Acmer> acmerList = new ArrayList<>(acmerService.deleteAcmer(handle));
         return new ResponseEntity<>(acmerList, HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteAll")
-    public ResponseEntity<Collection<Acmer>> deleteAllAcmers() {
+    public ResponseEntity<Collection<Acmer>> deleteAllAcmers(HttpServletRequest request) {
+        String jwt = request.getHeader("auth-token");
+        String privilege = request.getHeader("privilege");
+        if (jwt == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if(privilege!="ADMIN"){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         List<Acmer> acmerList = new ArrayList<>(acmerService.deleteAllAcmers());
         return new ResponseEntity<>(acmerList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{handle:.+}")
-    public ResponseEntity<Acmer> findByHandle(@PathVariable String handle) {
+    public ResponseEntity<Acmer> findByHandle(@PathVariable String handle, HttpServletRequest request) {
+        String jwt = request.getHeader("auth-token");
+        String privilege = request.getHeader("privilege");
+        if (jwt == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if(privilege!="ADMIN"){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         Acmer acmer = null;
         try {
             acmer = acmerService.findByHandle(handle);
@@ -97,7 +134,15 @@ public class AcmerController {
     }
 
     @PutMapping(value = "")
-    public ResponseEntity<Void> updateAcmer(@RequestBody Acmer acmer) {
+    public ResponseEntity<Void> updateAcmer(@RequestBody Acmer acmer, HttpServletRequest request) {
+        String jwt = request.getHeader("auth-token");
+        String privilege = request.getHeader("privilege");
+        if (jwt == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if(privilege!="ADMIN"){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         acmerService.updateAcmer(acmer);
         return new ResponseEntity<>(HttpStatus.OK);
     }

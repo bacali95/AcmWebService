@@ -144,7 +144,6 @@ public class AcmerService {
             String lastName = rootNode.path("lastName").asText();
             String email = rootNode.path("email").asText();
             Optional<Acmer> acmerObj = acmerRepository.findById(handle);
-            System.out.println(handle);
             if (acmerObj.isPresent()) {
                 return false;
             }
@@ -168,6 +167,7 @@ public class AcmerService {
 
     public void createAll(List<Acmer> acmerList) {
         Map<Integer, Contest> contests = acmerDAO.getAllAvailableContests();
+//        Acmer loggedInAcmer = acmerRepository.findByHandle(acmerDAO.getUsername(jwt));
         for (Acmer acmer : acmerList) {
             String handle = acmer.getHandle();
             String password = acmer.getPassword();
@@ -212,16 +212,24 @@ public class AcmerService {
             String handle = rootNode.path("handle").asText();
             String password = rootNode.path("password").asText();
             Acmer acmerfromDB = acmerRepository.findByHandle(handle);
-            System.out.println("from db"+acmerfromDB.toString());
             if (acmerfromDB != null) {
+                /*if(acmerfromDB.getSalt()==null){
+                    acmerfromDB.setSalt(this.passwordEncryption.generateSalt());
+                    acmerRepository.save(acmerfromDB);
+                }*/
                 String encryptedPassword = passwordEncryption.getEncryptedPassword(password, acmerfromDB.getSalt());
-                //System.out.println(encryptedPassword);
-                //System.out.println(acmerfromDB.getPassword());
-                if (encryptedPassword.equals(acmerfromDB.getPassword())) {
-                    String token = jwtTokenProvider.createToken(handle, Collections.singletonList(acmerfromDB.getRole()));
-                    acmerfromDB.setToken(token);
-                    System.out.println("***"+acmerfromDB.toString());
-                    return acmerfromDB;
+                if (encryptedPassword != null) {
+                    /*if(acmerfromDB.getPassword()==null){
+                        String encryptedPassword2 = passwordEncryption.getEncryptedPassword(password, acmerfromDB.getSalt());
+                        acmerfromDB.setPassword(encryptedPassword2);
+                    }*/
+                    System.out.println(" encryptedPassword!=null ");
+                    if (encryptedPassword.equals(acmerfromDB.getPassword())) {
+                        System.out.println(" encryptedPassword==password");
+                        String token = jwtTokenProvider.createToken(handle, Collections.singletonList(acmerfromDB.getRole()));
+                        acmerfromDB.setToken(token);
+                        return acmerfromDB;
+                    }
                 }
             }
         } catch (Exception e) {

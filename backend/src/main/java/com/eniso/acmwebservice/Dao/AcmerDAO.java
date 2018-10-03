@@ -6,14 +6,19 @@ import com.eniso.acmwebservice.Entity.Contest;
 import com.eniso.acmwebservice.Entity.SubmissionWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AcmerDAO {
+    @Value("${security.jwt.token.secret-key}")
+    private String secretKey;
 
     public SubmissionWrapper getSubmissionResult(Acmer acmer) {
         SubmissionWrapper result = new SubmissionWrapper();
@@ -72,5 +77,10 @@ public class AcmerDAO {
             e.printStackTrace();
         }
         return contests;
+    }
+
+    public String getUsername(String token) {
+        String encodedSecretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        return Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody().getSubject();
     }
 }

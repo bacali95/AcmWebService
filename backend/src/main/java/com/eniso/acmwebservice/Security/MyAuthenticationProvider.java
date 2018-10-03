@@ -37,7 +37,7 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
         }
         try {
             String salt = passwordEncryption.generateSalt();
-            encryptedPw = this.passwordEncryption.getEncryptedPassword(password, salt);//
+            encryptedPw = this.passwordEncryption.getEncryptedPassword(password, salt);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             log.error("Pw decrytion error: ",e);
         }

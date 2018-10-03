@@ -21,6 +21,9 @@ export class AcmerAddComponent {
   password: string = "";
 
   constructor(private router: Router, private acmerService: AcmerService) {
+    if(localStorage.getItem('handle') == null){
+      this.router.navigate(['login']);
+    }
   }
 
   createAcmer(): void {

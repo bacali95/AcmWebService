@@ -52,12 +52,16 @@ export class AcmerService {
 
   private apiUrl = '/api/acmers';
   private _files: FileQueueObject[] = [];
-  private reqHeader = new HttpHeaders({
+  private role :string;
+  private jwt :string;
+  private headers = new HttpHeaders({
     'Content-Type': 'application/json',
-    'No-Auth': 'True'
+    'auth-token': localStorage.getItem('token'),
+    'privilege':localStorage.getItem('role')
   });
 
   constructor(private http: HttpClient) {
+    this.jwt = localStorage.getItem('token');
     this._queue = <BehaviorSubject<FileQueueObject[]>>new BehaviorSubject(this._files);
   }
 
@@ -68,31 +72,30 @@ export class AcmerService {
   }
 
   getAllAcmers() {
-    let jwt = localStorage.getItem('token');
-    return this.http.get<Acmer[]>(this.apiUrl, {headers : new HttpHeaders().set('X-Auth-Token', jwt)});
+    return this.http.get<Acmer[]>(this.apiUrl, {headers: this.headers});
   }
 
   getAcmerByHandle(handle: string) {
-    return this.http.get(this.apiUrl + '/' + handle);
+    return this.http.get(this.apiUrl + '/' + handle,{headers: this.headers});
   }
 
   createAcmer(json: string) {
     const httpOptions = {
       headers: new HttpHeaders({'Content-Type': 'application/json'})
     };
-    return this.http.post<string>(this.apiUrl + '/create', json, httpOptions);
+    return this.http.post<string>(this.apiUrl + '/create', json, {headers: this.headers});
   }
 
   deleteAcmer(acmer: Acmer) {
-    return this.http.delete(this.apiUrl + '/' + acmer.handle);
+    return this.http.delete(this.apiUrl + '/' + acmer.handle,{headers: this.headers});
   }
 
   updateAcmer(acmer: Acmer): Observable<Object> {
-    return this.http.put<Acmer>(this.apiUrl , acmer);
+    return this.http.put<Acmer>(this.apiUrl, acmer,{headers: this.headers});
   }
 
   deleteAllAcmers() {
-    return this.http.delete(this.apiUrl + '/deleteAll', {responseType: 'text'});
+    return this.http.delete(this.apiUrl + '/deleteAll', {headers: this.headers});
   }
 
   // public events
@@ -140,16 +143,12 @@ export class AcmerService {
   }
 
   private _upload(queueObj: FileQueueObject) {
-    // create form data for file
     const form = new FormData();
     form.append('file', queueObj.file, queueObj.file.name);
-
-    // upload file and report progress
     const req = new HttpRequest('POST', this.apiUrl + '/createAll', form, {
       reportProgress: true,
     });
 
-    // upload file and report progress
     queueObj.request = this.http.request(req).subscribe(
       (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
@@ -160,10 +159,8 @@ export class AcmerService {
       },
       (err: HttpErrorResponse) => {
         if (err.error instanceof Error) {
-          // A client-side or network error occurred. Handle it accordingly.
           this._uploadFailed(queueObj, err);
         } else {
-          // The backend returned an unsuccessful response code.
           this._uploadFailed(queueObj, err);
         }
       }
@@ -173,7 +170,6 @@ export class AcmerService {
   }
 
   private _cancel(queueObj: FileQueueObject) {
-    // update the FileQueueObject as cancelled
     queueObj.request.unsubscribe();
     queueObj.progress = 0;
     queueObj.status = FileQueueStatus.Pending;
@@ -181,7 +177,6 @@ export class AcmerService {
   }
 
   private _uploadProgress(queueObj: FileQueueObject, event: any) {
-    // update the FileQueueObject with the current progress
     const progress = Math.round(100 * event.loaded / event.total);
     queueObj.progress = progress;
     queueObj.status = FileQueueStatus.Progress;
@@ -189,7 +184,6 @@ export class AcmerService {
   }
 
   private _uploadComplete(queueObj: FileQueueObject, response: HttpResponse<any>) {
-    // update the FileQueueObject as completed
     queueObj.progress = 100;
     queueObj.status = FileQueueStatus.Success;
     queueObj.response = response;
@@ -198,12 +192,9 @@ export class AcmerService {
   }
 
   private _uploadFailed(queueObj: FileQueueObject, response: HttpErrorResponse) {
-    // update the FileQueueObject as errored
     queueObj.progress = 0;
     queueObj.status = FileQueueStatus.Error;
     queueObj.response = response;
     this._queue.next(this._files);
   }
-
-
 }

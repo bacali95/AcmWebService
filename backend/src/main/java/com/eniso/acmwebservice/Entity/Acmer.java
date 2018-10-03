@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -258,4 +259,20 @@ public class Acmer implements Serializable, UserDetails {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Acmer)) return false;
+        Acmer acmer = (Acmer) o;
+        return Objects.equals(getHandle(), acmer.getHandle()) &&
+                Objects.equals(getToken(), acmer.getToken()) &&
+                Objects.equals(getSalt(), acmer.getSalt()) &&
+                getRole() == acmer.getRole() &&
+                Objects.equals(getSolvedProblemsDetails(), acmer.getSolvedProblemsDetails());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getHandle());
+    }
 }

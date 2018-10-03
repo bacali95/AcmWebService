@@ -25,7 +25,9 @@ export class AcmerEditComponent implements OnInit {
   acmerLastName = 'acmerLastName';
 
   constructor(private router: Router, private acmerService: AcmerService, private formBuilder: FormBuilder,private route: ActivatedRoute) {
-
+    if(localStorage.getItem('handle') == null){
+      this.router.navigate(['login']);
+    }
     this.option = this.formBuilder.group({
       firstName: ['', Validators.required],
       obligation: '',

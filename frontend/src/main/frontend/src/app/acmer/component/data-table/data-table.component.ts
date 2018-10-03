@@ -25,6 +25,7 @@ export class DataTableComponent implements OnInit {
   ngOnInit() {
     this.acmerService.getAllAcmers().subscribe(data => {
       this.dataSource.data = data;
+      console.log(JSON.stringify(data));
     }, error => console.log(error));
     this.dataSource = new DataTableDataSource(this.paginator, this.sort);
   }

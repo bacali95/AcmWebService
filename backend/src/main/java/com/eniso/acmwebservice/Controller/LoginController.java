@@ -24,7 +24,7 @@ public class LoginController {
     public ResponseEntity<Acmer> login(@RequestBody String acmerData) {
         Acmer loggedAcmer = acmerService.login(acmerData);
         if (loggedAcmer.getHandle() == null) {
-            System.out.println(loggedAcmer.toString());
+            System.out.println("**** "+loggedAcmer);
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(loggedAcmer, HttpStatus.OK);
@@ -36,6 +36,6 @@ public class LoginController {
         if (auth != null){
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-        return "ok";//You can redirect wherever you want, but generally it's a good practice to show login screen again.
+        return "ok";
     }
 }

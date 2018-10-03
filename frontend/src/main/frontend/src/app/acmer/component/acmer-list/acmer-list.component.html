@@ -67,17 +67,16 @@
     <button type="button" style="margin-right:50px;background-color:#17a2b8;border-color:#17a2b8" class="button btn"
             (click)='refreshPage()'>refresh
     </button>
-    <button type="button" style="margin-right:40px;background-color:#d9534f;border-color:#d9534f" class="button btn"
+    <button *ngIf="adminPrevilege" type="button" style="margin-right:40px;background-color:#d9534f;border-color:#d9534f" class="button btn"
             (click)='deleteAcmers()'>Delete All
     </button>
   </div>
-  <span class="btn btn-default btn-file">
+  <span  *ngIf="adminPrevilege" class="btn btn-default btn-file">
   <input class="inputfile" type="file" #fileInput multiple (change)="addToQueue()"/>
     </span>
 
   <table cellspacing="5">
     <tr *ngFor="let item of queue | async">
-      <td>{{ item?.file?.name }}</td>
       <td></td>
       <td class="text-right">{{ item?.file?.size/1024/1024 | number:'.2' }} MB</td>
       <td>{{ item.progress + ' %' }}</td>
