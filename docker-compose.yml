@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  db:
+    image: mariadb:10.4
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+  backend:
+    image: docker-registry.nasreddinebacali.info/acm-backend
+    network_mode: "host"
+    environment:
+      - DATABASE_URL=jdbc:mariadb://localhost:3306/acmdb?autoReconnect=true&useSSL=false
+      - DATABASE_USERNAME=user
+      - DATABASE_PASSWORD=user
+  frontend:
+    image: docker-registry.nasreddinebacali.info/acm-frontend
+    network_mode: "host"
