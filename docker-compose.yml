@@ -10,7 +10,7 @@ services:
     volumes:
       - /var/lib/mysql:/var/lib/mysql
   backend:
-    image: docker-registry.nasreddinebacali.info/acm-backend:latest
+    image: docker.nasreddinebacali.info/acm-backend:latest
     environment:
       - DATABASE_URL=jdbc:mariadb://db:3306/acmdb?autoReconnect=true&useSSL=false
       - DATABASE_USERNAME=user
@@ -18,7 +18,7 @@ services:
     links:
       - db:database
   frontend:
-    image: docker-registry.nasreddinebacali.info/acm-frontend:latest
+    image: docker.nasreddinebacali.info/acm-frontend:latest
     links:
       - backend:backend
     ports:
